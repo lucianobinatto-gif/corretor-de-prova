@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Corretor de Prova</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+<div id="app">
+
+  <!-- STEP 1: Gabarito -->
+  <section id="step-gabarito" class="step active">
+    <div class="card">
+      <div class="card-header">
+        <span class="badge">Passo 1</span>
+        <h1>Configurar Gabarito</h1>
+        <p>Defina as questoes, respostas corretas, pesos e nota minima de aprovacao.</p>
+      </div>
+
+      <div class="toolbar">
+        <div class="row-inline">
+          <label>Questoes:</label>
+          <input type="number" id="num-questoes" min="1" max="100" value="10" />
+          <button class="btn btn-secondary" onclick="gerarGabarito()">Gerar</button>
+          <label style="margin-left:.5rem">Nota minima:</label>
+          <input type="number" id="nota-minima" min="0" max="10" step="0.1" value="6" style="width:68px" />
+        </div>
+        <div class="row-inline">
+          <button class="btn btn-outline" onclick="carregarExemplo()" style="border-color:#d69e2e;color:#d69e2e">&#9654; Exemplo</button>
+          <button class="btn btn-outline" onclick="salvarProva()">&#128190; Salvar</button>
+          <button class="btn btn-outline" onclick="document.getElementById('file-carregar').click()">&#128194; Carregar</button>
+          <input type="file" id="file-carregar" accept=".json" style="display:none" onchange="carregarProva(event)" />
+        </div>
+      </div>
+
+      <div id="gabarito-grid" class="gabarito-grid"></div>
+
+      <div class="actions">
+        <button class="btn btn-primary" onclick="confirmarGabarito()">Confirmar Gabarito &rarr;</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 2: Alunos -->
+  <section id="step-alunos" class="step">
+    <div class="card">
+      <div class="card-header">
+        <span class="badge">Passo 2</span>
+        <h1>Corrigir Provas</h1>
+        <p>Insira as respostas manualmente ou importe um CSV.</p>
+      </div>
+
+      <div class="toolbar">
+        <div class="add-aluno-form">
+          <input type="text" id="aluno-nome" placeholder="Nome do aluno" />
+          <button class="btn btn-secondary" onclick="adicionarAluno()">+ Adicionar Aluno</button>
+        </div>
+        <div class="row-inline" style="padding-top:0">
+          <button class="btn btn-outline" onclick="document.getElementById('file-csv').click()">&#128196; Importar CSV</button>
+          <input type="file" id="file-csv" accept=".csv" style="display:none" onchange="importarCSV(event)" />
+          <a href="#" onclick="baixarModeloCSV(event)" class="link-csv">Baixar modelo CSV</a>
+        </div>
+      </div>
+
+      <div id="alunos-container"></div>
+
+      <div class="actions">
+        <button class="btn btn-outline" onclick="voltarGabarito()">&larr; Voltar</button>
+        <button class="btn btn-primary" onclick="verResultados()">Ver Resultados &rarr;</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 3: Resultados -->
+  <section id="step-resultados" class="step">
+    <div class="card" id="print-area">
+      <div class="card-header">
+        <span class="badge">Passo 3</span>
+        <h1>Resultados</h1>
+        <p>Resumo das correcoes, estatisticas e grafico de desempenho.</p>
+      </div>
+
+      <!-- Filtro + abas -->
+      <div class="resultados-toolbar no-print">
+        <input type="text" id="filtro-aluno" placeholder="Buscar aluno..." oninput="filtrarAlunos()" />
+        <div class="abas">
+          <button class="aba active" id="aba-resultados" onclick="mudarAba('resultados')">Resultados</button>
+          <button class="aba" id="aba-questoes"   onclick="mudarAba('questoes')">Por Questao</button>
+          <button class="aba" id="aba-revisao"    onclick="mudarAba('revisao')">Revisao</button>
+        </div>
+      </div>
+
+      <!-- Aba: Resultados -->
+      <div id="painel-resultados" class="painel">
+        <div id="resultados-container"></div>
+        <div class="grafico-section">
+          <h2 class="grafico-titulo">Grafico de Desempenho</h2>
+          <canvas id="grafico-canvas"></canvas>
+        </div>
+      </div>
+
+      <!-- Aba: Por Questao -->
+      <div id="painel-questoes" class="painel" style="display:none">
+        <div id="questoes-stats-container" style="padding:1rem 2rem 1.5rem"></div>
+      </div>
+
+      <!-- Aba: Revisao -->
+      <div id="painel-revisao" class="painel" style="display:none">
+        <div id="revisao-container" style="padding:1rem 2rem 1.5rem"></div>
+      </div>
+
+      <div class="actions no-print">
+        <button class="btn btn-outline" onclick="voltarAlunos()">&larr; Voltar</button>
+        <button class="btn btn-secondary" onclick="exportarResultados()">Exportar CSV</button>
+        <button class="btn btn-secondary" onclick="exportarPDF()">&#128462; Exportar PDF</button>
+        <button class="btn btn-secondary" onclick="imprimirResultados()">&#128424; Imprimir</button>
+        <button class="btn btn-primary" onclick="novaProva()">Nova Prova</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+<script src="app.js"></script>
+</body>
+</html>
